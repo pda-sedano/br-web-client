@@ -12,6 +12,8 @@ const App = () => {
   return (
     <div className="App">
       <Title />
+      <br />
+      <br />
       <Config outputAll={outputAll} setOutputAll={setOutputAll} maxSteps={maxSteps} setMaxSteps={setMaxSteps} />
       <Terminal outputAll={outputAll} maxSteps={maxSteps} />
     </div>

@@ -13,26 +13,39 @@ const Terminal = ({ outputAll, maxSteps }) => {
         }
     }, [lines]);
 
- // Fake server request
-    const handleCommand = async command => {
-        setLines(prev => [...prev, `${promptChar} ${command}`]);
+    const handleCommand = async () => {
+        console.log(`handleCommand running: ${input}`);
+
+        setLines(prev => [...prev, `${promptChar} ${input}`]);
 
         // Set loading prompt
         // setPromptChar('...');
 
         try {
-            // Process raw input
-            let response = await fetch('http://localhost:3000/raw', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(command),
-            });
+            // If command is empty, use current program
+            if (input !== '') {
+                await fetch('http://localhost:3000/terminate');
 
-            const data = await response.json();
-            console.log(data);
+                // Process raw input
+                const response = await fetch('http://localhost:3000/raw', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(input),
+                });
 
+                const data = await response.json();
+                console.log(data);
+
+                if (response.status !== 200) {
+                    setLines(prev => [...prev, `${data}`]);
+                    return;
+                }
+            }
+            
             // Run
-            response = await fetch(`http://localhost:3000/run?output_all=${outputAll}&max_steps=${maxSteps}`, {
+            const url = `http://localhost:3000/run?output_all=${outputAll}${maxSteps === '' ? '' : `&max_steps=${maxSteps}`}`;
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
             });
@@ -55,7 +68,14 @@ const Terminal = ({ outputAll, maxSteps }) => {
     const handleSubmit = e => {
         e.preventDefault();
 
-        handleCommand(e.target[0].value);
+        handleCommand();
+    };
+
+    const handleInputChange = e => {
+        let newInput = e.target.value;
+
+        newInput = newInput.replace(/\\/g, 'λ');
+        setInput(newInput);
     };
 
     return (
@@ -75,7 +95,7 @@ const Terminal = ({ outputAll, maxSteps }) => {
                 <input
                     type="text"
                     value={input}
-                    onChange={(e) => setInput(e.target.value)}
+                    onChange={handleInputChange}
                     className="bg-black text-green-400 outline-none border-none flex-1"
                     autoFocus
                 />
