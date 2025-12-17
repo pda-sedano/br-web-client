@@ -22,36 +22,22 @@ const Terminal = ({ outputAll, maxSteps }) => {
         // setPromptChar('...');
 
         try {
-            // If command is empty, use current program
-            if (input !== '') {
-                await fetch('http://localhost:3000/terminate');
-
-                // Process raw input
-                const response = await fetch('http://localhost:3000/raw', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(input),
-                });
-
-                const data = await response.json();
-                console.log(data);
-
-                if (response.status !== 200) {
-                    setLines(prev => [...prev, `${data}`]);
-                    return;
-                }
-            }
-            
-            // Run
-            const url = `http://localhost:3000/run?output_all=${outputAll}${maxSteps === '' ? '' : `&max_steps=${maxSteps}`}`;
-
-            const response = await fetch(url, {
-                method: 'GET',
+            // Process raw input
+            const response = await fetch(
+                `http://localhost:3000/raw?output_all=${outputAll}${maxSteps === '' ? '' : `&max_steps=${maxSteps}`}`, {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(input),
             });
-
+        
             const runData = await response.json();
             console.log(runData);
+
+
+            if (response.status !== 200) {
+                setLines(prev => [...prev, `${runData}`]);
+                return;
+            }
 
             // Assume server sends back an array of strings as lines
             const outputLines = runData || ['[no output]'];

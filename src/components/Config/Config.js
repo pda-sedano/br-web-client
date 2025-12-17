@@ -7,11 +7,6 @@ const Config = ({ outputAll, setOutputAll, maxSteps, setMaxSteps }) => {
         }
     };
 
-    // Terminate the current program
-    const terminate = async () => {
-        fetch('http://localhost:3000/terminate');
-    }
-
     return (
         <div className="Config">
             <label className="flex items-center space-x-2">
@@ -37,10 +32,6 @@ const Config = ({ outputAll, setOutputAll, maxSteps, setMaxSteps }) => {
                     className="border rounded px-2 py-1 w-24"
                 />
             </label>
-
-            <button onClick={terminate}>
-                Terminate
-            </button>
         </div>
     );
 };
